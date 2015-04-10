@@ -1,0 +1,85 @@
+#encoding UTF-8
+#extends base
+#block title
+        <title>Zhishi.me - Sparql </title>
+#end block title
+
+#block header
+        <script type="text/javascript">
+            \$(function(){
+            \$("#lookup").submit(function() {
+                window.location="/lookup/"+\$(this).serialize().substring(2);
+                return false;
+            });
+            });
+        </script>
+        <style type="text/css">
+            textarea{ border:1px solid #234C7F; padding:10px; }
+            th{ font-size:22px; }
+            #results td{ margin:0; padding:0; font-size:14px; margin-bottom:5px; list-style:none; }
+            .topLink{ text-align:right; font-size:14px; margin-top:20px; font-family:Arial; }
+        </style>
+#end block header
+
+#block body
+        <div class="mainTitle">SPARQL</div>
+        <form method="post" action="/sparql">
+            <textarea name="query" cols=80 rows=10>
+#if $query
+$query
+#else
+select ?s ?p ?o 
+where { 
+?s ?p ?o
+}
+limit 10
+#end if
+</textarea> <br/>
+        <input type="submit" class="button" style="height:22px;margin-top:20px;" value="SUBMIT" />
+        </form>
+        <div id="msg">
+        $msg
+        </div>
+
+        #if $bs
+        <table id="results"  width="100%" border="0" cellspacing="10" style="margin:20px">
+        <thead>
+            #for n in $bs.names
+            <th align="left">$n</th>
+            #end for
+        </thead>
+        <tbody>
+            #for l in $bs.aaValues
+            <tr>$line(l)</tr>
+            #end for
+        </tbody>
+        </table>
+        <div class="topLink"><a href="#">&gt;&gt;TOP</a></div> 
+        #end if
+    </body>
+</html>
+
+#def line(l)
+    #for x in $l
+    $val(x)
+    #end for
+#end def
+
+#def val(v)
+    <td>
+    #if $v.obj
+        #if $v.isLiteralObj
+            $v.obj.getLabel()
+        #else
+            <a href='$v.obj.getURI'>
+                #if $v.getObjNamespace
+                $v.getObjNamespace:
+                #end if
+                $v.getObjName
+            </a>
+        #end if
+    #end if
+</td>
+#end def
+
+#end block body

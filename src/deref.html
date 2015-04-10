@@ -1,0 +1,341 @@
+#encoding UTF-8
+#extends base
+#block title
+        <title>Zhishi.me -
+            #for l in $labels#
+            $l.obj.getLabel
+            @
+            #echo ",".join(s.getSource() for s in $l.subj)#
+            #end for#
+        </title>
+#end block title
+
+#block header
+        <style type="text/css">
+        body{ margin:0; font-family:arial; color:#000033; }
+        a{ color:#000033; text-decoration:none; }
+        a:hover{ text-decoration:underline; }
+        .logo{ border-bottom:2px solid #666666; padding:14px; }
+        .rdfBox{ border:0px;}
+        .mainTitle{ font-size:30px; font-weight:bold; padding:29px 0 20px 0; }
+        .legendItem{ clear:both; margin:0 0 10px 2px; font-size:20px; line-height:20px; }
+        .s1{ background-color:#990000; width:10px; height:20px; margin-right:5px; }
+        .s2{ background-color:#006633; width:10px; height:20px; margin-right:5px; }
+        .s3{ background-color:#ffcc66; width:10px; height:20px; margin-right:5px; }
+        .s4{ background-color:#cc6666; width:10px; height:20px; margin-right:5px; }
+        .s5{ background-color:#336699; width:10px; height:20px; margin-right:5px; }
+        .s6{ background-color:#cccc99; width:10px; height:20px; margin-right:5px; }
+        .s7{ background-color:#cc0099; width:10px; height:20px; margin-right:5px; }
+        .s8{ background-color:#cc9900; width:10px; height:20px; margin-right:5px; }
+        .s9{ background-color:#ffcccc; width:10px; height:20px; margin-right:5px; }
+        .s10{ background-color:#3399ff; width:10px; height:20px; margin-right:5px; }
+        .s11{ background-color:#999966; width:10px; height:20px; margin-right:5px; }
+        .t1{ border:2px solid #990000;}
+        .t2{ border:2px solid #006633;}
+        .t3{ border:2px solid #ffcc66;}
+        .t4{ border:2px solid #cc6666;}
+        .t5{ border:2px solid #336699;}
+        .t6{ border:2px solid #cccc99;}
+        .t7{ border:2px solid #cc0099;}
+        .t8{ border:2px solid #cc9900;}
+        .t9{ border:2px solid #ffcccc;}
+        .t10{border:2px solid #3399ff;}
+        .t11{border:2px solid #999966;}
+        .b1{ background-color:#990000; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b2{ background-color:#006633; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b3{ background-color:#ffcc66; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b4{ background-color:#cc6666; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b5{ background-color:#336699; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b6{ background-color:#cccc99; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b7{ background-color:#cc0099; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b8{ background-color:#cc9900; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b9{ background-color:#ffcccc; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b10{background-color:#3399ff; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+        .b11{background-color:#999966; width:40px; height:20px; margin:50px 1px 0 0; cursor:pointer; }
+
+        .val{float:left; margin-right:5px;font-size:14px;}
+
+        .menuBox{ border:1px solid #000033; float:left; padding:16px; margin-top:50px; }
+        ul{ font-family:Arial; padding:0 16px 0 16px; font-weight:bold; margin-right:20px; }
+        li{ line-height:22px; font-size:14px; }
+
+        .title{ font-size:20px; font-weight:bold; padding:50px 10px 20px 0; font-family:Arial; }
+        .tabSel { border:2px solid #000000;}
+        .tabHide { border:2px solid #ffffff;}
+
+        .topLink{ text-align:right; font-size:14px; margin-top:20px; }
+        .clearDiv{ clear:both; }
+
+        .foldmore{ color:#CC0000; font-size:13px; font-weight:bold; cursor:pointer; line-height:20px; float:left;}
+        .foldless{ color:#CC0000; font-size:13px; font-weight:bold; cursor:pointer; line-height:20px; float:left;}
+
+        .mergedBox{ border:1px solid #234C7F; position:absolute; top:0px; right:30px; border-top:none; padding:16px; }
+        .mergedBox .mergedTitle{ font-size:18px; font-weight:bold; margin-bottom:10px; }
+        form{ font-size:14px; line-height:26px; }
+        .button{ background:#234C7F; color:#ffffff; border:none; font-weight:bold; font-family:Arial; font-size:11px; cursor:pointer; }
+        td{ font-size:14px;}
+        </style>
+        <script>
+        \$(function() {
+            var i = 0;
+            var tabh = function() {
+                \$('.tabSel').each(function(){
+                    \$(\$(this).parent().attr('href')).hide();
+                    \$(this).removeClass('tabSel').addClass('tabHide');
+                });
+                \$(\$(this).attr('href')).show();
+                \$(this).children().each(function(i,e){
+                    \$(this).removeClass('tabHide').addClass('tabSel');
+                });
+                return false;
+            }
+            \$('#abstracts').children().each(function() {
+                var thisId = \$(this).attr('id');
+                if (thisId && thisId.indexOf('tab-')===0) {
+                    thisId = parseInt(thisId.substr(4));
+                    if (thisId>1) \$(this).hide();
+                } else {
+                    thisId = \$(this).attr('href');
+                    if (thisId && thisId.indexOf('#tab-')===0) {
+                        thisId = parseInt(thisId.substr(5));
+                        if (thisId==1) \$(this).children().addClass('tabSel');
+                        else \$(this).children().addClass('tabHide');
+                        \$(this).click(tabh);
+                    }
+                }
+            });
+            \$('.foldmore').click(function(){
+                \$(this).prev().show();
+                \$(this).hide();
+            });
+            \$('.foldless').click(function(){
+                \$(this).parent().hide();
+                \$(this).parent().next().show();
+            });
+        });
+        </script>
+#end block header
+
+#block body
+        <div class="mainTitle" style="float:left">
+            #for q in $query
+            <div class="legendItem">
+            <div class="s$q.id" style="float:left"></div>
+            <a href="$q.subj.getURI">$q.getNamespace:$q.getName</a>
+            <a href="/data/$req"><img src="http://www.w3.org/Talks/2005/1227-W3C-22C3/rdf_w3c_icon.48.png" height="16px"></img></a>
+            </div>
+            #end for
+
+            #if not $merged
+            <div class="rdfBox">
+            </div>
+            #end if
+        </div>
+
+        #if $sameAs
+        <div class="mergedBox">
+        <div class=mergedTitle><a href="http://www.w3.org/2002/07/owl#sameAs">owl:sameAs</a></div>
+            <form method="post" action="/resource/temp">
+            #for x in $sameAs#$propsameas(x)#end for#
+            <input class="button" style="height:22px; float:right; margin-top:10px;" type="submit" value="MERGE PAGE" />
+            </form>
+        </div>
+        #end if
+
+        <div class="clearDiv"></div>
+        #if not $merged
+            #if $depiction
+            #for p in $depiction#<img src="$p.obj.getURI">#end for#
+            #end if
+            #if $page
+            <div class="clearDiv"></div>
+            <a href="http://xmlns.com/foaf/0.1/page"><strong>foaf:page</strong></a>
+            #for p in $page#<a href="$p.obj.getURI">$p.getObjShort(40)</a><br/>#end for#
+            #end if
+            <div class="clearDiv"></div>
+        #end if
+
+        <div class="menuBox">Index
+        <ul>
+            #if $abstracts
+            <li><a href="#abstracts">zhishi:abstract</a></li>
+            #end if
+            #if $infobox
+            <li><a href="#infoBox">infobox</a></li>
+            #end if
+            #if $cats
+            <li><a href="#subject">dcterms:subject</a></li>
+            #end if
+            #if $category
+            <li><a href="#category">zhishi:category</a></li>
+            #end if
+            #if $relatedImage
+            <li><a href="#relatedImage">zhishi:relatedImage</a></li>
+            #end if
+            #if $thumbnail
+            <li><a href="#thumbnail">zhishi:thumbnail</a></li>
+            #end if
+            #if $props
+            #for p in $props
+            <li><a href="#$p.getPredName">$p.getPredNS:$p.getPredName</a></li>
+            #end for
+            #end if
+        </ul>
+        </div>
+
+        <div class="clearDiv"></div>
+        #if $abstracts
+        <div id="abstracts">
+        <div class="title" style="float:left"><a href="http://zhishi.me/ontology/abstract">zhishi:abstract</a></div>
+        #for i,a in enumerate($abstracts,1)#<a href="#tab-$i"><div class="b$a.subj.id" style="float:left;"></div></a>#end for#
+        <div class="clearDiv"></div>
+        #for i,a in enumerate($abstracts,1)#
+        <div id="tab-$i" style="font-size:14px;">
+            $a.obj.getLabel
+        </div>
+        #end for
+        </div>
+        $top()
+        #end if
+
+        #if $infobox
+        <div id="infoBox" class="title">infobox</div>
+        <table cellspacing="4">
+            <tbody>
+                #for c in $infobox
+                <tr>
+                    <td width="200px"><strong>$c.getPredName</strong></td>
+                    <td>#for v in $c.values
+                        $source(v) <span class="val">$v.obj.getLabel</span>
+                        #end for
+                    </td>
+                </tr>
+                #end for
+            </tbody>
+        </table>
+        $top()
+        #end if
+
+        #if $cats
+        <div id="subject" class="title"><a href="http://purl.org/dc/terms/subject">dcterms:subject</a></div>
+        <div>
+            #for c in $cats
+            $source(c)
+            <a href="$c.obj.getURI" class="val">$c.getObjName</a>
+            #end for
+        </div>
+        <div class="clearDiv"></div>
+        $top()
+        #end if
+
+        #if $category
+        <div id="category" class="title"><a href="http://zhishi.me/ontology/category">zhishi:category</a></div>
+        <div>
+            #for c in $category
+            $source(c)
+            <a href="$c.obj.getURI" class="val">$c.getObjName</a>
+            #end for
+        </div>
+        <div class="clearDiv"></div>
+        $top()
+        #end if
+
+        #if $thumbnail
+        <div id="thumbnail" class="title"><a href="http://zhishi.me/ontology/thumbnail">zhishi:thumbnail</a></div>
+        <div>
+            #for c in $thumbnail
+            <a href="$c.getImageURL"><img width="100" src="$c.getImageURL" class="t$c.subj.id"></img></a>
+            #end for
+        </div>
+        $top()
+        #end if
+
+        #if $relatedImage
+        <div id="relatedImage" class="title"><a href="http://zhishi.me/ontology/relatedImage">zhishi:relatedImage</a></div>
+        <div>
+            #for c in $relatedImage
+            <a href="$c.getImageURL"><img width="100" src="$c.getImageURL" class="t$c.subj.id"></img></a>
+            #end for
+        </div>
+        $top()
+        #end if
+
+        #if $props
+        #for p in $props
+        $propdiv(p)
+        <div class="clearDiv"></div>
+        $top()
+        #end for
+        #end if
+
+#def top()
+<div class="topLink"><a href="#">&gt;&gt;TOP</a></div>
+#end def
+#def source(v)
+#for s in v.getSubjects()#<span class="s$s.id" style="float:left"></span>#end for#
+#end def
+
+#def propsameas(x)
+<input type="checkbox" name="$x.obj.getURI" value="T"#if $x.isObjCheckable# checked #else# disabled#end if#>
+<a href="$x.obj.getURI">$x.getObjNamespace:$x.getObjName</a>
+#if x.isSubjThis()#(this)#end if#
+<br/>
+#end def
+
+#def propdiv(p)
+<div id="$p.getPredName" class="title"><a href="$p.pred.getURI">$p.getPredNS:$p.getPredName</a></div>
+#if $p.isSpecial
+    #for v in $p.values
+    $propl(v)
+    #end for
+#else
+    #if $p.isResourceLink
+        $propr(p.values[0])
+        #if $p.values[1:]
+            <span style="display:none">
+                #for v in $p.values[1:]
+                $propr(v)
+                #end for
+                <span class="foldless">SHOW LESS</span>
+            </span>
+            <span class="foldmore">SHOW MORE ($len($p.values))</span>
+        #end if
+    #else
+        $propi(p.values[0])
+        #if $p.values[1:]
+            <div style="display:none">
+                #for v in $p.values[1:]
+                $propi(v)
+                #end for
+                <span class="foldless">SHOW LESS</span>
+            </div>
+            <span class="foldmore">SHOW MORE ($len($p.values))</span>
+        #end if
+    #end if
+#end if
+#end def
+
+#def propr(x)
+$source(x)
+<a href="$x.obj.getURI" class="val">$x.getObjName</a>
+#end def
+
+#def propl(x)
+$source(x)
+#if $x.isLiteralObj
+    $x.obj.getLabel
+#else
+    <a href="$x.obj.getURI">$x.getObjName</a>
+#end if#<br style="clear:both"/>
+#end def
+
+#def propi(x)
+$source(x)
+#if $x.isLiteralObj
+    <span class="val">$x.obj.getLabel</span>
+#else
+    <a href="$x.obj.getURI" class="val">$x.obj.getURI</a>
+#end if#<br style="clear:both"/>
+#end def
+
+#end block body

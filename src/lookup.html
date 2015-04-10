@@ -1,0 +1,42 @@
+#encoding UTF-8
+#extends base
+#block title
+        <title>Zhishi.me - Lookup</title>
+#end block title
+
+#block header
+        <script type="text/javascript">
+            \$(function(){
+            \$("#lookup").submit(function() {
+                window.location="/lookup/"+\$(this).serialize().substring(2);
+                return false;
+            });
+            });
+        </script>
+#end block header
+
+#block body
+        <div class="mainTitle">LOOKUP</div>
+        <p>Examples: 
+        <a href="/lookup/中国">中国</a>
+        <a href="/lookup/北京">北京</a>
+        <a href="/lookup/太平洋">太平洋</a>
+        <a href="/lookup/China">China</a>
+        <a href="/lookup/Shanghai">Shanghai</a>
+        <a href="/lookup/RDF">RDF</a>
+        </p>
+        <form id="lookup">
+            <input style="width:262px;border:1px solid #234C7F;height:20px;line-height:20px;" name="q" value="$query"/>
+            <input type="submit" class="button" style="height:22px;" value="SUBMIT" />
+        </form>
+        #if $results
+        <form method="post" action="/resource/temp">
+        #for $r in $results
+        <input type="checkbox" name="$r.obj.getURI" value="T">
+        <a href="$r.obj.getURI">$r.getObjNamespace:$r.getObjName</a>
+        <br/>
+        #end for
+        <input type="submit" class="button" style="height:22px;margin-top:50px;" value="MERGE PAGE" />
+        </form>
+        #end if
+#end block body
